@@ -11,10 +11,14 @@ def get_min(f, lst):
 def bubblesort(f, lst):
     if len(lst) <= 1:
         return lst
-    for i in range(0, len(lst)-1):
-        if f(lst[i+1], lst[i]):
-            lst[i+1], lst[i] = lst[i], lst[i+1]
+    lst = bubble_aux(f, lst)
     return bubblesort(f, lst[:-1]) + [lst[-1]]
+
+def bubble_aux(f, lst):
+    if len(lst) <= 1:
+        return lst
+    return [lst[1]] + bubble_aux(f, [lst[0]] + lst[2:]) if f(lst[1], lst[0]) \
+            else [lst[0]] + bubble_aux(f, lst[1:])
 
 def quicksort(f, lst):
     if len(lst) <= 1:
