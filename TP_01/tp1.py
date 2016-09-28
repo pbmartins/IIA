@@ -42,19 +42,18 @@ def local_central(lst, visits=[], head=True):
 def etapas_principais(lst):
     return ep_aux(lst, local_central(lst))
 
-def ep_aux(lst, central, stages=[], idx=0, finished=True, head=True):
+def ep_aux(lst, central, stages=[(0, [])], head=True):
     if lst == []:
         return None if head else stages
-    if finished:
-        stages += [(0, [])]
     if lst[0][3] == central or len(lst) == 1:
-        stages[idx] = (stages[idx][0] + hour_diff(lst[0][2], lst[0][4]), \
-            stages[idx][1] + [lst[0][1]] + [lst[0][3]])
-        return ep_aux(lst[1:], central, stages, idx + 1, True, False)
+        stages[-1] = (stages[-1][0] + hour_diff(lst[0][2], lst[0][4]), \
+                stages[-1][1] + [lst[0][1], lst[0][3]])
+        if len(lst) != 1:
+            stages += [(0, [])]
     else:
-        stages[idx] = (stages[idx][0] + hour_diff(lst[0][2], lst[0][4]), \
-            stages[idx][1] + [lst[0][1]])
-        return ep_aux(lst[1:], central, stages, idx, False, False)
+        stages[-1] = (stages[-1][0] + hour_diff(lst[0][2], lst[0][4]), \
+            stages[-1][1] + [lst[0][1]])
+    return ep_aux(lst[1:], central, stages, False)
 
 viagem = [ \
         ("aviao", "SaCarneiro", 10, "Stansted", 12), 

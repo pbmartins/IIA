@@ -1,13 +1,15 @@
-import sys
 import math
-from functools import reduce
 
-def func(f, x):
-    return f(x)
+f1 = lambda x: x % 2 != 0
+f2 = lambda x: x > 0
+f3 = lambda x, y: abs(x) < abs(y)
+f4 = lambda x, y: (math.sqrt(x**2 + y**2), math.atan2(y, x))
+f5 = lambda h, f, g: lambda x, y, z: h(f(x, y), g(y, z))
+f6 = lambda f, lst: all([f(x) for x in lst])
+f7 = lambda f, lst: any([f(x) for x in lst])
+f8 = lambda lst1, lst2: len([x for x in lst1 if x in lst2]) == len(lst1)
 
-def func2args(f, x, y):
-    return f(x, y)
-
+# Counting repetitions
 def func8(f, lst_1, lst_2):
     if lst_1 == []:
         return True
@@ -16,41 +18,81 @@ def func8(f, lst_1, lst_2):
     lst_2.remove(lst_1[0])
     return func8(f, lst_1[1:], lst_2)
 
-def func9(f, lst, head=True, min_elem=None):
+def f9(f, lst, min_elem=None, head=True):
+    if lst == []:
+        return None if head else min_elem
     if head:
-        if lst == []:
-            return None
-        min_elem = lst[0]
-    if lst == []:
-        return min_elem
-    if f(lst[0], min_elem):
-        return func9(f, lst[1:], False, lst[0])
-    return func9(f, lst[1:], False, min_elem)
+        return f9(f, lst[1:], lst[0], False)
+    return f9(f, lst[1:], lst[0], False) \
+            if f(lst[0], min_elem) else f9(f, lst[1:], min_elem, False)
 
-def func10(f, lst, head=True, min_elem=None, to_rtn=[]):
-    if head:
-        if lst == []:
-            return None
-        min_elem = lst[0]
-    if lst == []:
-        return min_elem, to_rtn
-    if f(lst[0], min_elem):
-        return func10(f, lst[1:], False, lst[0], to_rtn + [min_elem])
-    return func10(f, lst[1:], False, min_elem, to_rtn + [lst[0]])
+def f10(f, lst, head=True):
+    if len(lst) < 2 and head:
+        return None
+    if len(lst) == 1:
+        return lst[0], []
+    min_elem, other_lst = f10(f, lst[1:], False)
+    return (lst[0], other_lst + [min_elem]) if f(lst[0], min_elem) \
+            else (min_elem, other_lst + [lst[0]])
 
-def func11(f, lst, min_elem=[], head=True, ret_lst=[]):
-    if lst == []:
-        return None if head else min_elem[0], min_elem[1], ret_lst
-    if head or len(min_elem) < 2:
-        return func11(f, lst[1:], min_elem + [lst[0]], False, ret_lst)
-    if f(lst[0], min_elem[0]) or f(lst[0], min_elem[1]):
-        tmp = min_elem + [lst[0]]
-        min_1 = min(tmp)
-        tmp.remove(min_1)
-        min_2 = min(tmp)
-        tmp.remove(min_2)
-        return func11(f, lst[1:], [min_1, min_2], False, ret_lst + [tmp[0]])
-    return func11(f, lst[1:], min_elem, False, ret_lst + [lst[0]])
+def f11(f, lst, head=True):
+    if len(lst) < 2 and head:
+        return None
+    if len(lst) == 1:
+        return lst, []
+    min_elem, other_lst = f11(f, lst[1:], False)
+    min_elem += [lst[0]]
+    if len(min_elem) < 3:
+        return (min_elem, other_lst)
+    max_elem = get_max(f, min_elem)
+    min_elem.remove(max_elem)
+    return (min_elem, other_lst + [max_elem])
+
+def get_max(f, lst):
+    max_list = [x for x in lst[1:] if not f(x, lst[0]) and x != lst[0]]
+    return lst[0] if max_list == [] else get_max(f, max_list)
+
+f12 = lambda lst: [(math.sqrt(item[0]**2 + item[1]**2), \
+        math.atan2(item[1], item[0])) for item in lst]
+
+def f13(f, lst1, lst2):
+    if lst1 == [] and lst2 == []:
+        return []
+    if lst1 == []:
+        return lst2
+    if lst2 == []:
+        return lst1
+    if f(lst1[0], lst2[0]):
+        lst = f13(f, lst1[1:], lst2)
+        return [lst1[0]] + lst
+    else:
+        lst = f13(f, lst1, lst2[1:])
+        return [lst2[0]] + lst
+
+f14 = lambda f, lst: [f(x) for sublist in lst for x in sublist]
+f15 = lambda f, lst: [f(x[0], x[1]) for x in zip(lst[0], lst[1])]
+
+def reduc(f, lst, null):
+    return null if lst == [] else f(lst[0], reduc(f, lst[1:], null))
+
+f16 = lambda f, lst, null: [reduc(f, sublist, null) for sublist in lst]
+
+print(f1(3))
+print(f2(3))
+print(f3(2, 3))
+print(f4(2, 2))
+print(f5(lambda x, y: x + y, lambda x, y: x - y, lambda x, y: x * y)(1, 2, 3))
+print(f6(lambda x: x > 0, [-1, 2, 3]))
+print(f7(lambda x: x > 0, [-1, 2, 3]))
+print(f8([1, 2], [1, 2, 4]))
+print(f9(lambda x, y: x < y, [1, -1, 4, 9]))
+print(f10(lambda x, y: x < y, [1, -1, 4, 9]))
+print(f11(lambda x, y: x < y, [1, -1, 4, 9]))
+print(f12([(2, 2), (1, 2), (4, 5)]))
+print(f13(lambda x, y: x < y, [1, 3, 5], [2, 4]))
+print(f14(lambda x: x**2, [[1, 2, 3], [4, 5, 6]]))
+print(f15(lambda x, y: x * y, [[1, 2, 3], [1, 2, 3]]))
+print(f16(lambda s, x: s + x, [[1, 2, 4], [1, 2, 3]], 0))
 
 #####################################
 # map()
@@ -66,80 +108,8 @@ def filt(f, lst):
     return filt(f, lst[1:])
 
 # reduce()
-def reduc(f, lst, null):
-    return null if lst == [] else f(lst[0], reduc(f, lst[1:], null))
+def redu(f, lst, null):
+    return null if lst == [] else f(lst[0], redu(f, lst[1:], null))
 
 
 #######################################
-
-def func13(f, lst_1, lst_2):
-    if lst_1 == [] and lst_2 == []:
-        return []
-    if lst_1 == []:
-        return lst_2
-    if lst_2 == []:
-        return lst_1
-    return [lst_1[0]] + func13(f, lst_1[1:], lst_2) if f(lst_1[0], lst_2[0])\
-            else [lst_2[0]] + func13(f, lst_1, lst_2[1:])
-
-def conc_aplic(f, lst):
-    return [] if lst == [] \
-            else list(map(lambda x : f(x), lst[0])) + conc_aplic(f, lst[1:])
-    # return [] if lst == [] else [f(x) for x in lst[0]] + conc_aplic(f, lst[1:])
-
-def aplic_combin(f, lst_1, lst_2):
-    if lst_1 == [] and lst_2 == []:
-        return []
-    elif lst_1 == [] or lst_2 == []:
-        return None
-    lst = aplic_combin(f, lst_1[1:], lst_2[1:])
-    return [f(lst_1[0], lst_2[0])] + lst if not lst == None else None
-
-def func16(f, lst, null):
-    return [] if lst == [] \
-            else [reduce(lambda x,s : f(x, s), lst[0], null)] + func16(f, lst[1:], null)
-    # return [] if lst == [] else [f(x) for x in lst[0]] + func16(f, lst[1:], null)
-
-print(func(lambda x : x%2 != 0, 3))
-print(func(lambda x : x < 0, -1))
-print(func2args(lambda x, y: abs(x) < abs(y), 4, -3))
-print(func2args(lambda x, y : (math.sqrt(x**2 + y**2), math.atan2(y,x)), 2, 2))
-
-func5 = lambda f, g, h : lambda x, y, z : h(f(x, y), g(y, z))
-print(func5(lambda x, y : x + y, lambda x, y : x * y, lambda x, y : x > y)(1, 2, 3))
-
-func6 = lambda f, lst : all([f(x) for x in lst])
-print(func6(lambda x : x > 0, [1, 2, 3]))
-
-func7 = lambda f, lst : any([f(x) for x in lst])
-print(func7(lambda x : x < 0, [-1, 2, 3]))
-
-# No repetitions
-func8_v2 = lambda lst1, lst_2 : [x for x in lst_1 if x in lst_2] == lst_1 
-# With repetitions
-print(func8(lambda x, lst : x in lst, [1, 2], [1, 2, 3, 4]))
-
-print(func9(lambda x, y : x < y, [1, 2, 3, 4]))
-
-print(func10(lambda x, y : x < y, [1, 2, 3, 4]))
-
-print(func11(lambda x, y : x < y, [1, 2, 3, 4]))
-
-func12 = lambda f, lst : [f(x[0], x[1]) for x in lst]
-print(func12(lambda x, y : (math.sqrt(x**2 + y**2), math.atan2(y, x)), [(1, 2), (3, 4)]))
-
-print(func13(lambda x, y : x <= y, [1, 2, 3], [2, 5, 6]))
-
-func14 = lambda f, lists : [f(x) for sublist in lists for x in sublist]
-print(func14(lambda x : x**2, [[1, 2, 3], [4, 5, 6]]))
-print(conc_aplic(lambda x : x**2, [[1, 2, 3], [4, 5, 6]]))
-
-func15 = lambda f, lst_1, lst_2 : [f(x[0], x[1]) for x in zip(lst_1, lst_2)] \
-        if len(lst_1) == len(lst_2) else None
-print(func15(lambda x, y : x * y, [1, 2, 3], [1, 2, 3]))
-print(aplic_combin(lambda x, y : x * y, [1, 2, 3], [1, 2, 3]))
-
-func16_v2 = lambda f, lists, null : \
-        [reduce(lambda x, s : f(x, s), sublist, null) for sublist in lists]
-print(func16_v2(lambda x, s : x * s, [[1, 2, 3], [4, 5, 6], [7, 8, 9]], 1))
-print(func16(lambda x, s : x * s, [[1, 2, 3], [4, 5, 6], [7, 8, 9]], 1))

@@ -46,21 +46,11 @@ def list_union(lst_1, lst_2):
     return [lst_1[0]] + list_union(lst_1[1:], lst_2) if lst_1[0] < lst_2[0] \
             else [lst_2[0]] + list_union(lst_1, lst_2[1:])
     
-def sub_lists(lst, to_rtn=[]):
+def sub_lists(lst):
     if lst == []:
-        return to_rtn
-    
-    aux = False
-    for l in to_rtn:
-        if lst[0] == l[0]:
-            l += [lst[0]]
-            aux = True
-
-    if not aux:
-        to_rtn += [[lst[0]]]
-
-    return sub_lists(lst[1:], to_rtn)
-
+        return [[]]
+    ls = sub_lists(lst[1:])
+    return ls + [[lst[0]] + x for x in ls] if [lst[0]] not in ls else ls
 
 print(sys.argv)
 print(length(sys.argv[1:]))
@@ -72,5 +62,5 @@ print(capicua(sys.argv[1:]))
 print(concatenate_lists([[1, 2, 3], [4, 5, 6], [7, 8, 9]]))
 print(subst_elem(sys.argv[1:], '3', '4'))
 print(list_union([1, 2, 3, 5], [2, 4, 6]))
-print(sub_lists([1, 1, 2, 3, 3, 3, 4]))
-
+print(sub_lists([1, 1, 2, 3]))
+print(sub_lists([1, 2, 3]))

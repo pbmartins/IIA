@@ -66,8 +66,13 @@ def medium(lst, aux=[], elem_sum=0, cp=False, head=True):
     if not cp:
         return medium(lst, lst, elem_sum, True, head)
     if aux == []:
-        return None if head else elem_sum / len(lst), lst[int(len(lst)/2)]
+        return None if head else elem_sum / len(lst), mediana(lst)
     return medium(lst, aux[1:], elem_sum + aux[0], True, False)
+
+def mediana(lst):
+    if len(lst) % 2 == 0:
+        return (lst[int(len(lst)/2)] + lst[int(len(lst)/2) + 1]) / 2
+    return lst[int(len(lst)/2)]
 
 print(first_elem([]))
 print(tail([1, 2, 3]))
