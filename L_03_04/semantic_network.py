@@ -17,6 +17,8 @@
 #     - Member      - uma relacao de pertenca de uma instancia a um tipo
 #
 
+from functools import reduce
+
 class Relation:
     def __init__(self,e1,rel,e2):
         self.entity1 = e1
@@ -131,8 +133,7 @@ class SemanticNetwork:
                 in self.query_local(rel='member') + self.query_local(rel='subtype')]))
 
     def associations(self):
-        return list(set([d.relation.name for d in self.query_local(relc=Association) \
-                if not (d.relation == 'member' or d.relation == 'subtype')]))
+        return list(set([d.relation.name for d in self.query_local(relc=Association)]))
 
     def user_relations(self, user):
         return None if user == None \
@@ -152,21 +153,16 @@ class SemanticNetwork:
             return None
         ancestors = [d.relation.entity2 \
                 for d in self.query_local(e1=entity, relc=(Member, Subtype))]
-        self.query_result = self.query_local(e1=entity, relc=Association) \
+        assoc_local = self.query_local(e1=entity, relc=Association) \
                 if assoc == None else self.query_local(e1=entity, rel=assoc)
-        for a in ancestors:
-            self.query_result += self.query(a, assoc)
-        return self.query_result
+        return reduce(lambda a, b: a + b, [self.query(a, assoc) for a in ancestors],\
+                assoc_local)
 
-    def query2(self, entity, assoc=None):
+    def query2(self, entity, assoc=None, head=True):
         if entity == None:
             return None
-        ancestors = self.query_local(e1=entity, relc=(Member, Subtype))
-        self.query_result = self.query_local(e1=entity, relc=Association) \
-                if assoc == None else self.query_local(e1=entity, rel=assoc)
-        for a in ancestors:
-            self.query_result += [a] + self.query2(a.relation.entity2, assoc)
-        return self.query_result
+        return self.query_local(e1=entity, relc=(Member, Subtype)) \
+                + self.query(entity, assoc)
 
     def query_cancel(self, entity, assoc=None):
         if entity == None:
@@ -176,37 +172,90 @@ class SemanticNetwork:
         qr = self.query_local(e1=entity, relc=Association) \
                 if assoc == None else self.query_local(e1=entity, rel=assoc)
         query_assocs = [d.relation.name for d in qr]
-        to_rtn = []
-        to_rtn[0:] = qr
-        for a in ancestors:
-            pred_assocs = self.query_cancel(a, assoc)
-            for d in pred_assocs:
-                if d.relation.name not in query_assocs:
-                    to_rtn += [d]
-        self.query_result = to_rtn
-        return self.query_result
+        #to_rtn = []
+        #to_rtn[0:] = qr
+        #for a in ancestors:
+        #    pred_assocs = self.query_cancel(a, assoc)
+        #    for d in pred_assocs:
+        #        if d.relation.name not in query_assocs:
+        #            to_rtn += [d]
+        #return self.query_result
+        to_rtn = qr
+        for q in [self.query_cancel(a, assoc) for a in ancestors]:
+           to_rtn += [d for d in q if d.relation.name not in query_assocs]
+        return to_rtn
 
     def query_assoc_value(self, entity, assoc, head=True):
         if entity == None or assoc == None:
             return None
         qr = self.query_local(e1=entity, rel=assoc)
-        if all([d.relation.entity2 == qr[0].relation.entity2 for d in qr]):
-            return qr[0].relation.entity2
+        if len(qr) and all([d.relation.entity2 == qr[0].relation.entity2 for d in qr]):
+            return qr[0].relation.entity2 if head \
+                    else (dict([(qr[0].relation.entity2, len(qr))]), len(qr))
 
         ancestors = [d.relation.entity2 \
                 for d in self.query_local(e1=entity, relc=(Member, Subtype))]
-        qr_ancestors = [query_assoc_value(a, assoc, False) \
-                for a in ancestors]
+        h_func = {}
+        n_elems = 0
+        if not ancestors == []:
+            qr_ancestors = [self.query_assoc_value(a, assoc, False) for a in ancestors]
+            dicts = [a[0] for a in qr_ancestors]
+            h_func = {}
+            for d in dicts:
+                for e in d:
+                    if e in h_func:
+                        h_func[e] += d[e]
+                    else:
+                        h_func[e] = d[e]
 
-        elems = list(set([d.relation.entity2 for d in qr]))
-        count = [len([e for e in qr if e.relation.entity2 == d]) for d in elems]
-        max_rep = count[max(count, key = lambda i: count[i])]
+            n_elems = sum([a[1] for a in qr_ancestors])
 
+        l_func = set([d.relation.entity2 for d in qr])
+        l_func = dict.fromkeys(l_func, [])
+        for e in l_func:
+            l_func[e] = len([q for q in qr if q.relation.entity2 == e])
+
+        if head:
+            f_func = dict()
+            for e in l_func:
+                if e in h_func:
+                    f_func[e] = (l_func[e] / len(qr) + h_func[e] / n_elems) / 2
+                else:
+                    f_func[e] = l_func[e] / len(qr) / 2
+            for e in h_func:
+                if e not in l_func:
+                    f_func[e] = h_func[e] / n_elems / 2
+            return max(f_func, key = lambda i: f_func[i])
+        else:
+            for e in h_func:
+                if e in l_func:
+                    l_func[e] += h_func[e]
+                else:
+                    l_func[e] = h_func[e]
+            return (l_func, len(qr) + n_elems)
+
+    def query_down(self, etype, assoc, head=True):
+        if etype == None or assoc == None:
+            return None
+        local_assocs = []
         if not head:
-            if ancestors == []:
-                return (max_rep, len(qr))
+            local_assocs = self.query_local(e1=etype, rel=assoc)
+        return reduce(lambda a, b: a + b, [self.query_down(d.relation.entity1, assoc, False) \
+                for d in self.query_local(e2=etype, rel='subtype')], local_assocs)
+        
 
-        # not working
+    def query_induce(self, etype, assoc, in_assocs={}, head=True):
+        if etype == None or assoc == None:
+            return None
+        if not head:
+            for a in self.query_local(e1=etype, rel=assoc):
+                if a.relation.entity2 in in_assocs:
+                    in_assocs[a.relation.entity2] += 1
+                else:
+                    in_assocs[a.relation.entity2] = 1
+        for d in self.query_local(e2=etype, rel='subtype'):
+            self.query_induce(d.relation.entity1, assoc, in_assocs, False)
+        return max(in_assocs, key=lambda i: in_assocs[i]) if head else None
 
 
 # Funcao auxiliar para converter para cadeias de caracteres
