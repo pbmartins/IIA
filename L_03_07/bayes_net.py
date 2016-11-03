@@ -9,8 +9,10 @@
 # (c) Luis Seabra Lopes, 2012-2014
 # v1.0 - 2014/11/04
 #
+#
 
-# 
+from functools import reduce
+
 class ProbCond:
 
     def __init__(self,var,mothers,prob):
@@ -62,3 +64,5 @@ class BayesNet:
                 prob *= 1.0-listprob[0]
         return prob
 
+    def ind_prob(self, var):
+       return reduce([], 0)

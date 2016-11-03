@@ -17,7 +17,7 @@ z.insert( ProbCond("j", [ ("a",False) ], 0.05))
 z.insert( ProbCond("m", [ ("a",True) ], 0.7))
 z.insert( ProbCond("m", [ ("a",False) ], 0.1))
 
-print z.prob_list
+print(z.prob_list)
 
 #       p(j & m & a & ~t & ~r)
 #       Em Python:
@@ -25,6 +25,6 @@ print z.prob_list
 #                          ("t",False), ("r", False)              ] )
 #
 
-print z.joint_prob( [ ("j",True ), ("m", True ), ("a",True), \
-                      ("t",False), ("r", False)              ] )
+print(z.joint_prob( [ ("j",True ), ("m", True ), ("a",True), \
+                      ("t",False), ("r", False)              ] ))
 #   Exemplo:

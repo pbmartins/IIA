@@ -172,20 +172,36 @@ class SemanticNetwork:
         qr = self.query_local(e1=entity, relc=Association) \
                 if assoc == None else self.query_local(e1=entity, rel=assoc)
         query_assocs = [d.relation.name for d in qr]
-        #to_rtn = []
-        #to_rtn[0:] = qr
-        #for a in ancestors:
-        #    pred_assocs = self.query_cancel(a, assoc)
-        #    for d in pred_assocs:
-        #        if d.relation.name not in query_assocs:
-        #            to_rtn += [d]
-        #return self.query_result
         to_rtn = qr
         for q in [self.query_cancel(a, assoc) for a in ancestors]:
            to_rtn += [d for d in q if d.relation.name not in query_assocs]
         return to_rtn
 
-    def query_assoc_value(self, entity, assoc, head=True):
+    def query_assoc_value(self, entity, rel):
+        assoc_direct = self.query_local(e1=entity, rel=rel)
+        ancestors = self.query_local(e1=entity, relc=(Member, Subtype))
+        assoc_inherited = reduce(lambda a, b: a + b, \
+                [self.query(a.relation.entity2, rel) for a in ancestors], [])
+        
+        values_direct = [d.relation.entity2 for d in assoc_direct]
+        values_inherited = [d.relation.entity2 for d in assoc_inherited]
+
+
+        if len(set(values_direct)) == 1:
+            return values_direct[0]
+
+        values = set(values_direct) | set(values_inherited)
+        if len(values) > 0:
+            return max(values, key=lambda v: (self._percentage(v, values_direct) \
+                    + self._percentage(v, values_inherited)) / 2)
+        return None
+
+    def _percentage(self, v, lista):
+        if len(lista) > 0:
+            return lista.count(v) / len(lista)
+        return 0
+        
+    def query_assoc_value2(self, entity, assoc, head=True):
         if entity == None or assoc == None:
             return None
         qr = self.query_local(e1=entity, rel=assoc)
