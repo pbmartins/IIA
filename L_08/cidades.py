@@ -34,7 +34,7 @@ class Cidades(SearchDomain):
     def heuristic(self, state, goal_state):
         c1 = self.coordinates[state]
         c2 = self.coordinates[goal_state]
-        return math.sqrt(abs(c1[0] - c2[0])**2 + abs(c1[1] - c2[1])**2)
+        return math.hypot(c1[0] - c2[0], c1[1] - c2[1])
         
 
 cidades_portugal = Cidades( 
@@ -91,17 +91,25 @@ t = SearchTree(p,'depth')
 def search_path(c1, c2, strategy, boundary=0):
     my_prob = SearchProblem(cidades_portugal,c1,c2)
     my_tree = SearchTree(my_prob, strategy, boundary)
-    return my_tree.search()
+    s = my_tree.search()
+    print("-------------------------------")
+    print("Strategy: " + strategy)
+    if (boundary):
+        print("Boundary: " + str(boundary))
+    print("Cost: " + str(my_tree.cost))
+    print("Depth: " + str(my_tree.depth))
+    print("Non-terminal nodes: " + str(my_tree.non_terminal))
+    print("Terminal nodes: " + str(my_tree.terminal))
+    print("Medium ramification: " + str(my_tree.medium_ramification))
+    print("Higher cost nodes: " + str(my_tree.higher_cost))
+    print("Medium_depth: " + str(my_tree.medium_depth))
+    return s
 
 print("breadth:")
 print(t.search())
-print("breadth:")
 print(search_path('Aveiro', 'Lisboa', 'breadth'))
-print("uniform:")
 print(search_path('Aveiro', 'Lisboa', 'uniform'))
-print("uniform:")
 print(search_path('Braga', 'Faro', 'uniform'))
-print("depth - 8 limit:")
 print(search_path('Braga', 'Faro', 'depth', 8))
-print("greedy:")
 print(search_path('Braga', 'Faro', 'greedy'))
+print(search_path('Braga', 'Faro', 'a*'))
