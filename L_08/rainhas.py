@@ -2,31 +2,25 @@
 from constraintsearch import *
 
 
-def nao_ataca(var1,var2,col1,col2):
-    if col1==col2:
+def queen_constraint(r1,c1,r2,c2):
+    l1 = int(r1[1:])
+    l2 = int(r2[1:])
+    if c1==c2:
         return False
-    linha = { "r1":1, "r2":2, "r3":3, "r4":4 }
-    lin1 = linha[var1] 
-    lin2 = linha[var2] 
-    return abs(lin1-lin2)!=abs(col1-col2)
+    if abs(l1-l2)==abs(c1-c2):
+        return False
+    return True
 
-s = ConstraintSearch( [ ("r1",[1,2,3,4]),
-                        ("r2",[1,2,3,4]),
-                        ("r3",[1,2,3,4]),
-                        ("r4",[1,2,3,4]) ],
+def make_constraint_graph(n):
+    queens = [ 'R'+str(i+1) for i in range(n) ]
+    return { (X,Y):queen_constraint for X in queens for Y in queens if X!=Y }
 
-                      [ ("r1","r2",nao_ataca),
-                        ("r1","r3",nao_ataca),
-                        ("r1","r4",nao_ataca),
-                        ("r2","r3",nao_ataca),
-                        ("r2","r4",nao_ataca),
-                        ("r3","r4",nao_ataca),
-                        ("r2","r1",nao_ataca),
-                        ("r3","r1",nao_ataca),
-                        ("r4","r1",nao_ataca),
-                        ("r3","r2",nao_ataca),
-                        ("r4","r2",nao_ataca),
-                        ("r4","r3",nao_ataca) ] )
+def make_domains(n):
+    queens = [ 'R'+str(i+1) for i in range(n) ]
+    cols = [ i+1 for i in range(n) ]
+    return { r:cols for r in queens }
 
+cs = ConstraintSearch(make_domains(4),make_constraint_graph(4))
 
+print(cs.search())
 

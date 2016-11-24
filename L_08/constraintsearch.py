@@ -1,71 +1,63 @@
-
 # Pesquisa para resolucao de problemas de atribuicao
 # 
 # Introducao a Inteligencia Artificial
 # DETI / UA
 #
-# (c) Luis Seabra Lopes, 2012-2014
-# v1.0 - 2014/11/27
+# (c) Luis Seabra Lopes, 2012-2016
 #
+
 
 class ConstraintSearch:
 
-    # varvals e' uma lista de pares (var,lvals), em que lvals
-    # e' a lista de todos os valores possiveis de var
-    def __init__(self,varvals,constraints):
-        self.varvals = varvals
+    # domains é um dicionário com o domínio de cada variável;
+    # constaints e' um dicionário com a restrição aplicável a cada aresta;
+    def __init__(self,domains,constraints):
+        self.domains = domains
         self.constraints = constraints
-        self.iterations = 0
 
-    # varvals e' a lista actual de valores possiveis 
-    # de todas as variaveis
+
+    # domains é um dicionário com os domínios actuais
+    # de cada variável
     # ( ver acetato "Pesquisa com propagacao de restricoes
     #   em problemas de atribuicao - algoritmo" )
-
-    def search(self,varvals=None):
-
-        if varvals == None:
-            varvals = self.varvals
-
-        self.iterations += 1
+    def search(self,domains=None):
+        
+        if domains==None:
+            domains = self.domains
 
         # se alguma variavel tiver lista de valores vazia, falha
-        if [v for (v,lv) in varvals if lv==[]] != []:
+        if any([lv==[] for lv in domains.values()]):
             return None
-        
+
         # se nenhuma variavel tiver mais do que um valor possivel, sucesso
-        if [v for (v,lv) in varvals if lv[1:]!=[]] == []:
+        if all([len(lv)==1 for lv in list(domains.values())]):
             # se valores violam restricoes, falha
             # ( verificacao desnecessaria se for feita a propagacao
             #   de restricoes )
-            for (var1,var2,constraint) in self.constraints:
-                val1 = [lv[0] for (v,lv) in varvals if v==var1][0]
-                val2 = [lv[0] for (v,lv) in varvals if v==var2][0]
-                if not constraint(var1,var2,val1,val2):
+            for (var1,var2) in self.constraints:
+                constraint = self.constraints[var1,var2]
+                if not constraint(var1,domains[var1][0],var2,domains[var2][0]):
                     return None 
-            return [ (var,vals[0]) for (var,vals) in varvals ]
-
-        # opcoes para a proxima iteracao
-        options = [ (var,val) \
-                        for (var,lvals) in varvals if len(lvals)>1 \
-                        for val in lvals ]
-        for (var,val) in options:
-            newvarvals = []
-            for (v,lv) in varvals:
-                if v==var:
-                    newvarvals += [(v,[val])]
-                else:
-                    newvarvals += [(v,lv)]
-
-            # falta fazer a propagacao de restricoes
-            # ............
-
-            # chamada recursiva
-            rec = self.search(newvarvals)
-            if rec==None:
-                continue
-            # se encontrou solucao, retorna
-            return rec
+            return { v:lv[0] for (v,lv) in domains.items() }
+       
+        # continuação da pesquisa
+        # ( falta fazer a propagacao de restricoes )
+        for var in domains.keys():
+            if len(domains[var])>1:
+                for val in domains[var]:
+                    newdomains = dict(domains)
+                    newdomains[var] = [val]
+                    for v in [k for k in newdomains.keys() if k != var]:
+                        constraints = self.constraints[var, v] if (var, v) \
+                                in self.constraints.keys() else self.constraints[v, var] \
+                                if (v, var) in self.constraints.keys() else None
+                        if constraints != None and val in newdomains[v] \
+                                and (not constraints(var, val, v, val) \
+                                or not constraints(v, val, var, val)):
+                            newdomains[v] = [x for x in domains[v] if x != val]
+                    solution = self.search(newdomains)
+                    if solution != None:
+                        return solution
         return None
 
 

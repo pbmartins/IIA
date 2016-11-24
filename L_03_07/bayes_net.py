@@ -1,68 +1,41 @@
-
-
-# Guiao de representacao do conhecimento
-# -- Redes de Bayes
-# 
-# Introducao a Inteligencia Artificial
-# DETI / UA
-#
-# (c) Luis Seabra Lopes, 2012-2014
-# v1.0 - 2014/11/04
-#
-#
-
+from itertools import product
 from functools import reduce
-
-class ProbCond:
-
-    def __init__(self,var,mothers,prob):
-        self.var = var
-        self.mothers = mothers
-        self.prob = prob
-    def __str__(self):
-        return "pc(" + self.var + "," + str(self.mothers) + \
-               "," + str(self.prob) + ")"
-    def __repr__(self):
-        return str(self)
-
-
-#   Exemplo:
-#      ProbCond("a", [ ("r",True),  ("t",True)  ], 0.95) )
-#      Ou seja: a probabilidade condicionada de "alarme" dado que 
-#      ocorreu "roubo" e "terramoto" e 95%
-
-# ------------------------------------------------------------
 
 class BayesNet:
 
-#   construtor:
-#   ( por defeito, inicializa rede com lista vazia )
-#
-    def __init__(self,prob_list=[]):
-        self.prob_list = prob_list
+    def __init__(self,ldep={}):
+        self.dependencies = ldep
 
-#   insere uma probabilidade condicionada na rede:
-#
-    def insert(self,pc):
-        self.prob_list.append(pc)
+    # Os dados estao num dicionario (var,dependencies)
+    # em que as dependencias de cada variavel
+    # estao num dicionario (mothers,prob);
+    # "mothers" e' um frozenset de pares (mothervar,boolvalue)
+    def add(self,var,mothers,prob):
+        self.dependencies.setdefault(var,{})[frozenset(mothers)] = prob
 
-#   calcula a probabilidade conjunta, dados os valores de todas
-#   as variaveis da rede;
-#   recebe uma lista de pares (var,val):
-#
-    def joint_prob(self,conjunction):
+    # Probabilidade conjunta de uma dada conjuncao 
+    # de valores das variaveis da rede
+    def jointProb(self,conjunction):
         prob = 1.0
         for (var,val) in conjunction:
-            contido = lambda c1,c2: ([e for e in c1 if e not in c2]==[])
-            listprob = [ pc.prob \
-                           for pc in self.prob_list \
-                           if pc.var == var \
-                           and contido(pc.mothers,conjunction) ]
-            if val:
-                prob *= listprob[0]
-            else:
-                prob *= 1.0-listprob[0]
+            for (mothers,p) in self.dependencies[var].items():
+                if mothers.issubset(conjunction):
+                    prob*=(p if val else 1-p)
         return prob
 
-    def ind_prob(self, var):
-       return reduce([], 0)
+
+    def indProb(self, var, val):
+        all_vars = [v for v in self.dependencies if v != var]
+        conj_probs = [[(v, True), (v, False)] for v in all_vars] + [[(var, val)]]
+        probs = [list(c) for c in list(product(*conj_probs))]
+        return reduce(lambda a, b: a + b, [self.jointProb(p) for p in probs], 0)
+
+
+    def individualProb(self, var):
+        v, b = var
+        s = 0
+        all_vars = [vv for vv in self.dependencies.keys() if v != vv]
+        conj_b = product([True, False], repeat=len(all_vars))
+        for c in conj_b:
+            s += self.jointProb(list(zip(all_vars, c)) + [var])
+        return s
