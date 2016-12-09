@@ -86,7 +86,7 @@ class MyCS(ConstraintSearch):
     Optimiza de forma a encontrar cada solução
     apenas uma vez.
     """
-    def search_all(self,domains=None,xpto=[], all_vars=None):
+    def search_all(self,domains=None,xpto=[],i=0):
         if domains==None:
             domains = self.domains
 
@@ -101,17 +101,18 @@ class MyCS(ConstraintSearch):
                 xpto += [solution]
             return xpto
       
-        all_vars = list(domains.keys()) if all_vars == None else all_vars
-        var = all_vars[0]
-        while len(domains[var]) < 2:
-            all_vars = all_vars[1:]
-            var = all_vars[0]
         # continuação da pesquisa
-        for val in domains[var]:
-            newdomains = dict(domains)
-            newdomains[var] = [val]
-            edges = [(v1,v2) for (v1,v2) in self.constraints if v2==var]
-            newdomains = self.constraint_propagation(newdomains,edges)
-            self.search_all(newdomains, xpto, all_vars[1:])
-
+        for var in domains.keys():
+            stop_flag = False
+            if len(domains[var])>1:
+                for val in domains[var]:
+                    newdomains = dict(domains)
+                    newdomains[var] = [val]
+                    edges = [(v1,v2) for (v1,v2) in self.constraints if v2==var]
+                    newdomains = self.constraint_propagation(newdomains,edges)
+                    stop_flag = self.search_all(newdomains, xpto, i+1) == None
+            if stop_flag:
+                break
         return xpto
+
+

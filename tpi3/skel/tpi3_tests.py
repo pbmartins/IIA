@@ -92,7 +92,7 @@ cidades_portugal = Cidades(
                      } )
 
 
-p = SearchProblem(cidades_portugal,'Braga','Faro')
+p = SearchProblem(cidades_portugal,'Braga','Covilha')
 print("-------------------------------------------")
 t = MyTree(p,'depth')
 print("Solution: {0}".format(t.search2()))
@@ -184,7 +184,12 @@ print("-------------------------------------------")
 print("Cobertura de Markov para 'b_v'")
 print(bn.markov_blanket('b_v'))
 print("-------------------------------------------")
-
+print("Cobertura de Markov para 's_q'")
+print(bn.markov_blanket('s_q'))
+print("-------------------------------------------")
+print("Cobertura de Markov para 'f_s'")
+print(bn.markov_blanket('f_s'))
+print("-------------------------------------------")
 
 # -------------------------------------------------------------
 # TWO + TWO = FOUR
