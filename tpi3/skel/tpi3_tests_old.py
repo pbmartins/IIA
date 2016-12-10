@@ -102,20 +102,13 @@ t = MyTree(p,'banbou')
 print("Solution: {0}".format(t.search2()))
 print(t.solution_cost,t.tree_size)
 print("-------------------------------------------")
-p = SearchProblem(cidades_portugal,'Braga','Covilha')
-t = MyTree(p, 'depth')
-print("Solution: {0}".format(t.search2()))
-print(t.solution_cost,t.tree_size)
-print("-------------------------------------------")
-t = MyTree(p, 'banbou')
-print("Solution: {0}".format(t.search2()))
-print(t.solution_cost,t.tree_size)
-print("-------------------------------------------")
+
 q = SearchProblem(cidades_portugal,'Guarda','Lisboa')
 r = MyTree(q,'banbou')
 print("Solution: {0}".format(r.search2()))
 print(r.solution_cost,r.tree_size)
 print("-------------------------------------------")
+
 
 # -------------------------------------------------------------
 # Rede de Bayes para testar o método markov_blanket()
@@ -190,16 +183,21 @@ print("-------------------------------------------")
 print("Cobertura de Markov para 'c_s'")
 print(bn.markov_blanket('c_s'))
 print("-------------------------------------------")
+print("Cobertura de Markov para 's_s'")
+print(bn.markov_blanket('s_s'))
+print("-------------------------------------------")
+print("Cobertura de Markov para 'b_v'")
+print(bn.markov_blanket('b_v'))
+print("-------------------------------------------")
 print("Cobertura de Markov para 's_q'")
 print(bn.markov_blanket('s_q'))
 print("-------------------------------------------")
 print("Cobertura de Markov para 'f_s'")
 print(bn.markov_blanket('f_s'))
 print("-------------------------------------------")
-print("Cobertura de Markov para 'b_v'")
-print(bn.markov_blanket('b_v'))
+print("Cobertura de Markov para 'car_s'")
+print(bn.markov_blanket('car_s'))
 print("-------------------------------------------")
-
 
 # -------------------------------------------------------------
 # TWO + TWO = FOUR
@@ -238,7 +236,6 @@ domains['WX1UX2'] = filter_domain(domains['WX1UX2'],wx1ux2)
 
 domains['TX2OF'] = generate_product_domain(['T','X2','O','F'],domains)
 domains['TX2OF'] = filter_domain(domains['TX2OF'],tx2of)
-
 
 constraints = []
 
@@ -294,9 +291,8 @@ lsols = cs.search_all()
 
 print("Soluções:")
 for s in lsols:
-    print(s)
+    print([(v,s[v]) for v in ['F','O','R','T','U','W']])
 
 print("Tempo:",time.clock()-t0)
 
 print(len(lsols)," soluções")
-

@@ -1,3 +1,4 @@
+# coding=utf-8
 # Pesquisa para resolucao de problemas de atribuicao
 # 
 # Introducao a Inteligencia Artificial
@@ -34,7 +35,7 @@ class ConstraintSearch:
             return { v:lv[0] for (v,lv) in domains.items() }
        
         # continuação da pesquisa
-        for var in list(reversed(sorted(list(domains.keys())))):
+        for var in domains.keys():
             if len(domains[var])>1:
                 for val in domains[var]:
                     newdomains = dict(domains)
