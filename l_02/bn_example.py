@@ -25,6 +25,28 @@ print(bn.jointProb(conjunction))
 print(bn.indProb('a', True))
 print(bn.indProb('a', False))
 
+print("Exercise TP")
+
+bn = BayesNet()
+
+bn.add('r',[],0.001)
+bn.add('t',[],0.02)
+
+bn.add('a',[('r',True ),('t',True )],0.900)
+bn.add('a',[('r',True ),('t',False)],0.900)
+bn.add('a',[('r',False),('t',True )],0.100)
+bn.add('a',[('r',False),('t',False)],0.001)
+
+bn.add('j',[('a',True )],0.900)
+bn.add('j',[('a',False)],0.000)
+
+bn.add('m',[('a',True )],0.950)
+bn.add('m',[('a',False)],0.001)
+
+print(bn.indProb('a', True))
+print(bn.indProb('m', True))
+print(bn.indProb('j', True))
+
 # Exemplo exercicio
 # a - precisa de ajuda
 # s - sobre-carregado

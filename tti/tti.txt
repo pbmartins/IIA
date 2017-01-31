@@ -1,0 +1,92 @@
+TTI - Pedro Martins, 76551
+
+1. A etiqueta com a afirmação verdadeira é a da Caixa C3, portanto, o maço de notas está na Caixa C2.
+a)
+M(m) - m é maço de notas
+C(c) - c é caixa
+IS(x, y) - x está em y
+V(x) - etiqueta x diz a verdade
+
+
+E m, x, Q y: M(m) & C(x) & C(y) & ~(x = y) => IS(m, x) & ~IS(m, y)
+—————————————————————————————————————————
+E m, c3: M(m) & C(c3) & IS(m, c3)
+—————————————————————————————————————————
+E m, c2: M(m) & C(c2) & ~IS(m, c2)
+—————————————————————————————————————————
+E m, c3: M(m) & C(c3) & ~IS(m, c3)
+—————————————————————————————————————————
+E w, Q z: C(w) & C(z) & ~(w = z) => V(w) & ~V(z)
+
+
+b)
+—————————————————————————————————————————
+CNF:
+—————————————————————————————————————————
+E m, x, Q y: M(m) & C(x) & C(y) & ~(x = y) => IS(m, x) & ~IS(m, y)
+<=> M(n) & C(i) & C(y) & ~(i = y) => IS(n, i) & ~IS(n, y)
+<=> ~(M(n) & C(i) & C(y) & ~(i = y)) | (IS(n, i) & ~IS(n, y))
+<=> ~M(n) | ~C(i) | ~C(y) | (i = y) | (IS(n, i) & ~IS(n, y))
+<=> (~M(n) | ~C(i) | ~C(y) | (i = y) | IS(n, i)) & (~M(n) | ~C(i) | ~C(y) | (i = y) | ~IS(n, y))
+—————————————————————————————————————————
+E m, c3: M(m) & C(c3) & IS(m, c3)
+<=> M(n) & C(c) & IS(n, c)
+—————————————————————————————————————————
+E m, c2: M(m) & C(c2) & ~IS(m, c2)
+<=> M(n) & C(b) & ~IS(n, b)
+—————————————————————————————————————————
+E m, c3: M(m) & C(c3) & ~IS(m, c3)
+<=> M(n) & C(c) & ~IS(n, c)
+—————————————————————————————————————————
+E w, Q z: C(w) & C(z) & ~(w = z) => V(w) & ~V(z)
+<=> C(j) & C(z) & ~(j = z) => V(j) & ~V(z)
+<=> ~(C(j) & C(z) & ~(j = z)) | (V(j) & ~V(z))
+<=> ~C(j) | ~C(z) | (j = z) | (V(j) & ~V(z))
+<=> (~C(j) | ~C(z) | (j = z) | V(j)) & (~C(j) | ~C(z) | (j = z) | ~V(z))
+
+—————————————————————————————————————————
+Forma clausal:
+—————————————————————————————————————————
+F1: {~M(n1) | ~C(i1) | ~C(y1) | (i1 = y1) | IS(n1, i1), ~M(n2) | ~C(i2) | ~C(y2) | (i2 = y2) | ~IS(n2, y2)}
+—————————————————————————————————————————
+F2: {M(n1), C(c1), IS(n2, c2)}
+—————————————————————————————————————————
+F3: {M(n1), C(b1), ~IS(n2, b2)}
+—————————————————————————————————————————
+F4: {M(n1), C(c1), ~IS(n2, c2)}
+—————————————————————————————————————————
+F5: {~C(j1) | ~C(z1) | (j1 = z1) | V(j1), ~C(j2) | ~C(z2) | (j2 = z2) | ~V(z2)}
+
+c)
+Seja
+	P: F2 & ~F3 & ~F4
+	Q: ~F2 & F3 & ~F4
+	R: ~F2 & ~F3 & F4
+
+Existem 3 possibilidades de onde o maço de notas de se encontra:
+	P | Q | R
+Por resolução e por F5, que diz que apenas uma etiqueta explicita informação verdadeira, F2 e F4 não podem ter o mesmo valor lógico, daí:
+	{P | Q, ~Q | R}  |-  P | R
+Por F1, verifica-se que P não pode ocorrer, visto que F1 explicita que o maço apenas se encontra numa das caixas, logo F3 e F4 não podem ter ambas valores lógicos falsos (ambas não podem não estar vazias).
+	Conclui-se R: ~F2 & ~F3 & F4  |-  F4 é Verdadeiro & maço está em c2.
+
+
+
+2. O critério a utilizar seria ordená-las pelo tamanho do domínio de cada uma, do menor para o maior. Visto que, na pesquisa por restrições, vamos restringindo as possibilidades de cada uma das variáveis, se começássemos pela variável com maior domínio, teríamos de fixar todas os elementos possíveis do domínio e pesquisar sobre cada um deles, o que seria pouco eficiente. Se fixarmos as variáveis com menor domínio no início, as variáveis com maior domínio serão remetidas para o final da pesquisa e, consequentemente, devido às restrições impostas pelos valores das variáveis anteriores (e de domínio menor), o domínio “já restringido” seria menor, o que tornaria a pesquisa mais rápida e eficiente.
+
+3. A pesquisa por melhorias sucessivas passa por fazer sucessivos refinamentos dada uma configuração inicial, chegando a uma configuração satisfatória. Por outro lado, a técnica de pesquisa por propagação de restrições passa por utilizar tipicamente uma pesquisa em profundidade, fixando a cada iteração o valor de uma das variáveis e as restrições impostas pelo valor da mesma ao domínio. Um problema que tenha sido anteriormente resolvido com uma técnica de pesquisa por propagação de restrições, pode também ser resolvido utilizando pesquisa por melhorias sucessivas. A técnica de reparação heurística, que consiste em alterações de uma configuração inicial (aleatória ou não) dada uma heurística local, pode ser usada na resolução de problemas com satisfação de restrições, sendo essa heurística traduzida na alteração do domínio que, em certo momento, mais contribui para reduzir os conflitos entre restrições.
+
+4.
+a) O cálculo de situações é um método que usa lógica de primeira ordem para descrever o resultado de ações ou sequências de ações dada uma certa situação (estado), isto é, de cenários em constantes alterações. Um agente de cálculo de situações deve ser capaz de deduzir a situação na qual resulta uma dada sequência de ações numa situação inicial (projeção) e, com um algoritmo de inferências construtivo adequado, deve também ser capaz de descobrir qual a sequência que de ações que faz a transição de uma situação inicial para outra (planeamento).
+O cálculo de situações tem associada a seguinte ontologia:
+- Situações são termos lógicos que representam a situação inicial e todas as restantes resultantes da aplicação de uma ação numa dada situação (usa-se a função Result(a, si) = sj para descrever o resultado de uma ação numa situação si - resulta na situação sj).
+- Fluentes são funções e predicados que podem variar consoante a situação onde se encontrem (por exemplo, Idade(Agente, S0) é a idade do Agente na situação inicial S0, e o valor da idade pode ir sempre sendo alterado conforme a situação em que o agente se encontre).
+- Predicados intemporais ou eternos são predicados e funções que não se alteram consoante a situação (por exemplo, Humano(Agente), pois é algo que não se altera com a situação em que se encontre).
+
+
+b) Surgem vários problemas à volta desta temática. Podemos começar pelos axiomas de possibilidade, que referem quando é possível executar certa ação, e os axiomas de efeito, que espelham o resultado da execução de uma certa possível ação.
+Imagine-se um mapa que tem um Agente na posição [1, 1] e uma barra de ouro G na posição [1, 2] ([1, 1] e [1, 2] são adjacentes). O objetivo do Agente é ir buscar a barra de ouro, portanto, isso poderia traduzir-se em: At(Agente, [1, 1], Result(Go([1, 1], [1, 2]), S0). No entanto, nada nos diz que, por algum motivo, a barra de ouro G já não se possa encontrar numa posição diferente de [1, 2]. O problema associado aos axiomas de efeito é que representam alterações, mas não dizem o que se mantém igual.
+O problema do enquadramento tenta resolver o problema da representação das coisas que não se alteram. Uma das soluções são os axiomas de enquadramento, que mostram explicitamente o que se mantém igual, no entanto, no mundo real, pouco se altera quando se faz uma ação, daí que afete muito poucos fluentes.
+Vejamos, se existem F fluentes e A ações, serão necessários axiomas de enquadramento na ordem de O(AF). Por outro lado, se cada ação tem E efeitos (presumivelmente E é muito menor que F, como explicado anteriormente), conseguimos representar os resultados com uma base de conhecimentos muito menor, da ordem O(AE), derivando daí o problema do enquadramento representacional. O problema do enquadramento inferencial é semelhante a este, no sentido em que se tenta projetar os resultados de uma sequência de ações de t passos na ordem O(Et), em vez de tempos muito superiores como de ordem O(Ft) ou O(AEt).
+No entanto, outro problema se mantém, que é o de assegurar todas as condições para que uma ação seja executada com sucesso, sendo esse designado problema de qualificação. Um exemplo é o da ação Go falhar caso o Agente morra durante o percurso.
+Dentro desta temática, surge mais um problema. Imaginemos que o Agente chega com sucesso à posição onde se encontra a barra de outro G, pega nela e vai em direção à posição original [1, 1]. Nada nos diz que, se o Agente se mover da posição [1, 2] para a posição [1, 1] que a barra de outro G também se irá mover, no entanto, nós inferimos que sim. Lidar com este tipo de inferências é o problema da ramificação.

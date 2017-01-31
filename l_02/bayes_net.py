@@ -27,7 +27,7 @@ class BayesNet:
     def indvProb(self, var, boolean):
         all_vars = [key for key in self.dependencies.keys() if key != var]
         return sum([self.jointProb(list(zip(all_vars, comb)) + [(var, boolean)]) \
-                for comb in itertools.product([True, False], repeat=len(all_vars))])
+                for comb in product([True, False], repeat=len(all_vars))])
 
     def indProb(self, var, val):
         all_vars = [v for v in self.dependencies if v != var]

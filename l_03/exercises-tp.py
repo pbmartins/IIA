@@ -51,13 +51,12 @@ c_frontiers = {
         }
 
 cs_c = ConstraintSearch(c_domain, create_cgraph(c_domain, c_frontiers))
-#print(cs_c.search())
+print(cs_c.search())
 
 
 #################################
 # Exercise 5
 friends = ['André', 'Bernardo', 'Cláudio', 'Daniel']
-all_combs = [(b, c) for b in friends for c in friends]
 domain = {f: [(b, c) for b in friends for c in friends \
         if b != f and c != f and b != c] for f in friends}
 def friends_rest(f1, comb1, f2, comb2):

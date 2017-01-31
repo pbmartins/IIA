@@ -1,0 +1,118 @@
+TTI - Pedro Martins, 76551
+
+1. A etiqueta com a afirmação verdadeira é a da Caixa C3, portanto, o maço de notas está na Caixa C2.
+a)
+M(m) - m é maço de notas
+C(c) - c é caixa
+IS(x, y) - x está em y
+V(x) - x está vazio
+ET(e, x) - e é etiqueta de x
+ED(x, y) - etiqueta x diz y
+EV(x) - etiqueta x diz a verdade
+
+
+E m, x, Q y: M(m) & C(x) & C(y) & ~(x = y) => IS(m, x) & ~IS(m, y)
+—————————————————————————————————————————
+E m, c3: M(m) & C(c3) & IS(m, c3)
+—————————————————————————————————————————
+E m, c2: M(m) & C(c2) & ~IS(m, c2)
+—————————————————————————————————————————
+E m, c3: M(m) & C(c3) & ~IS(m, c3)
+—————————————————————————————————————————
+E w, Q z: C(w) & C(z) & ~(w = z) => V(w) & ~V(z)
+
+
+E m, c1, c2, c3: M(m) & C(c1) & C(c2) & C(c3) & E(c1, m) & E(c2, m) & E(c3, m)
+—————————————————————————————————————————
+E m, x, Q y: MA(m) & C(x) & C(y) & ~(y = x) => E(m, x) & V(y)
+—————————————————————————————————————————
+E c1, c3, e1, m: C(c1) & C(c3) & ET(e1, c1) & MA(m) & ED(e1, E(m, c3))
+—————————————————————————————————————————
+E c2, e2: C(c2) & ET(e2, c2) & ED(e2, V(c2))
+—————————————————————————————————————————
+E c3, e3: C(c3) & ET(e2, c3) & ED(e3, V(c3))
+—————————————————————————————————————————
+E x, Q y: ET(x) & ET(y) & ~(x = y) => EV(x) & ~EV(y)
+
+
+
+b)
+—————————————————————————————————————————
+CNF:
+—————————————————————————————————————————
+E m, c1, c2, c3: M(m) & C(c1) & C(c2) & C(c3) & E(c1, m) & E(c2, m) & E(c3, m)
+<=>
+M(m) & C(a) & C(b) & C(c) & E(a, m) & E(b, m) & E(c, m)
+—————————————————————————————————————————
+E m, x, Q y: MA(m) & C(x) & C(y) & ~(y = x) => E(m, x) & V(y)
+<=>
+MA(n) & C(x) & C(y) & ~(y = x) => E(n, x) & V(y)
+<=>
+~(MA(n) & C(x) & C(y) & ~(y = x)) | E(n, x) & V(y)
+<=>
+(~MA(n) | ~C(x) | ~C(y) | (y = x)) | E(n, x) & V(y)
+<=>
+(~MA(n) | ~C(x) | ~C(y) | (y = x) | E(n, x)) & (~MA(n) | ~C(x) | ~C(y) | (y = x) | V(y))
+—————————————————————————————————————————
+E c1, c3, e1, m: C(c1) & C(c3) & ET(e1, c1) & MA(m) & ED(e1, E(m, c3))
+<=>
+C(a) & C(c) & ET(e, a) & MA(n) & ED(e, E(n, c))
+—————————————————————————————————————————
+E c2, e2: C(c2) & ET(e2, c2) & ED(e2, V(c2))
+<=>
+C(b) & ET(f, b) & ED(f, V(b))
+—————————————————————————————————————————
+E c3, e3: C(c3) & ET(e3, c3) & ED(e3, V(c3))
+<=>
+C(c) & ET(g, c) & ED(g, V(c))
+—————————————————————————————————————————
+E x, Q y: ET(x) & ET(y) & ~(x = y) => EV(x) & EF(y)
+<=>
+ET(p) & ET(q) & ~(p = q) => EV(p) & EF(q)
+<=>
+~(ET(p) & ET(q) & ~(p = q)) | (EV(p) & EF(q))
+<=>
+(~ET(p) | ~ET(q) | (p = q)) | (EV(p) & EF(q))
+<=>
+(~ET(p) | ~ET(q) | (p = q) | EV(p)) & (~ET(p) | ~ET(q) | (p = q) | EF(q))
+
+
+—————————————————————————————————————————
+Forma clausal:
+—————————————————————————————————————————
+{M(m1), C(a1), C(b1), C(c1), E(a2, m2), E(b2, m3), E(c2, m4)}
+—————————————————————————————————————————
+{~MA(n1) | ~C(x1) | ~C(y1) | (y1 = x1) | E(n1, x1), ~MA(n2) | ~C(x2) | ~C(y2) | (y2 = x2) | V(y2)}
+—————————————————————————————————————————
+{C(a1), C(c1), ET(e1, a2), MA(n1), ED(e2, E(n2, c2))}
+—————————————————————————————————————————
+{C(b1), ET(f1, b2), ED(f2, V(b3))}
+—————————————————————————————————————————
+{C(c2), ET(g1, c2), ED(g2, V(c3))}
+—————————————————————————————————————————
+{~ET(p1) | ~ET(q1) | (p1 = q1) | EV(p1), ~ET(p2) | ~ET(q2) | (p2 = q2) | EF(q2)}
+
+c)
+
+
+
+
+
+2. O critério a utilizar seria por ordená-las pelo tamanho do domínio de cada uma, do menor para o maior. Visto que, na pesquisa por restrições, vamos restringindo as possibilidades de cada uma das variáveis, ora, se começássemos pela variável com maior domínio, teríamos de fixar todas os elementos possíveis do domínio e pesquisar sobre cada um deles, o que seria pouco eficiente. Se fixarmos as variáveis com menor domínio no início, as variáveis com maior domínio serão remetidas para o final da pesquisa e consequentemente, devido às restrições impostas pelos valores das variáveis anteriores (e de domínio menor), o domínio “disponível” das últimas seria menor, o que tornaria a pesquisa mais rápida e eficiente.
+
+3. A pesquisa por melhorias sucessivas passa por fazer sucessivos refinamentos dada uma configuração inicial, chegando a uma configuração satisfatória. Por outro lado, a técnica de pesquisa por propagação de restrições passa por utilizar tipicamente uma pesquisa em profundidade, fixando a cada iteração o valor de uma das variáveis e as restrições impostas pelo valor da mesma ao domínio. Um problema que tenha sido anteriormente resolvido com uma técnica de pesquisa por propagação de restrições, pode também ser resolvido utilizando pesquisa por melhorias sucessivas. A técnica de reparação heurística, que consiste em alterações de uma configuração dada uma heurística local, pode ser usada na resolução de problemas com satisfação de restrições, sendo essa heurística traduzida na alteração do domínio que, em certo momento, mais contribui para reduzir os conflitos entre restrições.
+
+4.
+a) O cálculo de situações é um método que usa lógica de primeira ordem para descrever o resultado de ações dada uma certa situação (estado), isto é, de cenários em constantes alterações.
+O cálculo de situações tem associada a seguinte ontologia:
+- Situações são termos lógicos que representam a situação inicial e todas as restantes resultantes da aplicação de uma ação numa dada situação (usa-se a função Result(a, s) para descrever o resultado de uma ação a numa situação s).
+- Fluentes são funções e predicados que podem variar consoante a situação onde se encontrem (por exemplo, Idade(Agente, S0) é a idade do Agente na situação inicial S0, e o valor da idade pode, é claro, ir sendo alterado conforme a situação em que o agente se encontre).
+- Predicados intemporais ou eternos são predicados e funções que não se alteram consoante a situação (por exemplo, Humano(Agente), pois é algo que não se altera com a situação em que se encontre).
+
+
+b) Surgem vários problemas à volta desta temática. Podemos começar pelos axiomas de possibilidade, que dizem quando é possível executar certa ação, e os axiomas de efeito, que, claro está, que dizem o que resulta da execução de uma certa possível ação.
+Imagine-se um mapa que tem um Agente na posição [1, 1] e uma barra de ouro G na posição [1, 2] ([1, 1] e [1, 2] são adjacentes). O objetivo do Agente é ir buscar a barra de ouro, portanto isso poderia traduzir-se em: At(Agente, [1, 1], Result(Go([1, 1], [1, 2]), S0). No entanto, nada nos diz que, por algum motivo, a barra de ouro G já não se possa encontrar na posição [1, 2]. O problema associado aos axiomas de efeito é que representam alterações, mas não dizem o que se mantém igual.
+O problema do enquadramento tenta resolver o problema da representação das coisas que não se alteram. Uma das soluções são os axiomas de enquadramento, que dizem explicitamente o que se mantém igual, no entanto, no mundo real, pouco se altera quando se faz uma ação, daí que afete muito poucos fluentes.
+Vejamos, se existem F predicados fluentes e A ações, serão necessários axiomas de enquadramento na ordem de O(AF). Por outro lado, se cada ação tem E efeitos (presumivelmente E é muito menor que F, como explicado anteriormente), conseguimos representar os resultados com uma base de conhecimentos muito menor, da ordem O(AE), derivando daí o problema do enquadramento representacional. O problema do enquadramento inferencial é semelhante a este, no sentido em que se tenta projetar os resultados de uma sequência de ações de t passos em tempo O(Et), em vez de tempos muito superiores como de ordem O(Ft) ou O(AEt)
+No entanto, outro problema se mantém, que é o de assegurar todas as condições para que uma ação seja executada com sucesso, sendo designado por problema de qualificação. Um exemplo é o da ação Go falhar caso o Agente morra durante o percurso.
+Outro problema surge nesta temática. Imaginemos que o Agente chega com sucesso à posição onde se encontra a barra de outro G, agarra nela e vai em diração à posição original [1, 1]. Nada nos diz que, se o Agente se mover da posição [1, 2] para a posição [1, 1] que a barra de outro G também se irá mover, no entanto, nós inferimos que sim. Lidar com este tipo de inferências é o problema da ramificação.
